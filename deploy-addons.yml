@@ -1,0 +1,8 @@
+---
+- name: Deploy kubernetes addons
+  hosts: masters
+  become: yes
+  roles:
+    - addons
+  tags:
+    - addons

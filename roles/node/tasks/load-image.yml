@@ -1,0 +1,37 @@
+---
+- name: Load docker images for node
+  command: "docker load -i /opt/docker-images/{{ item }}.tar"
+  with_items:
+    - pause-amd64_{{ pause_version }}
+    - exechealthz-amd64_{{ exechealthz_version }}
+    - calico-cni_v{{ calico_cni_version }}
+    - calico-ctl_v{{ calico_ctl_version }}
+    - calico-node_v{{ calico_node_version }}
+
+    - kubedns-amd64_{{ kubedns_version }}
+    - kube-dnsmasq-amd64_{{ kube_dnsmasq_version }}
+    - dnsmasq-metrics-amd64_{{ dnsmasq_metrics_version }}
+
+- name: Load kube-policy-controller image
+  command: "docker load -i /opt/docker-images/kube-policy-controller_v{{ kube_policy_controller_version }}.tar"
+  when: kube_network_policy
+
+- name: Load kubernetes dashboard images
+  command: "docker load -i /opt/docker-images/kubernetes-dashboard-amd64-v{{ kubernetes_dashboard_version }}.tar"
+  when: kube_ui
+
+- name: Load logging images
+  command: "docker load -i /opt/docker-images/{{ item }}.tar"
+  with_items:
+    - elasticsearch_v{{ elasticsearch_verison }}
+    - fluentd_-elasticsearch_{{ fluentd_elasticsearch_version }}
+    - kibana_{{ kibana_version }}
+  when: cluster_logging
+
+- name: Load monitoring images
+  command: "docker load -i /opt/docker-images/{{ item }}.tar"
+  with_items:
+    - prometheus_v{{ prometheus_version }}
+    - node-exporter_v{{ node_exporter_version }}
+    - grafana_{{ grafana_version }}
+  when: cluster_monitoring

@@ -1,0 +1,104 @@
+---
+- name: Make sure directory exist
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+    - /opt/bin
+    - /opt/cni
+    - /opt/cni/bin
+    - /etc/kubernetes
+    - /etc/kubernetes/manifests
+    - /etc/kubernetes/addons
+    - /etc/cni
+    - /etc/cni/net.d
+    - /etc/etcd
+
+- name: Make sure /etc/kubernetes/certs directory exist
+  file: path=/etc/kubernetes/certs state=directory group=k8s mode=0750
+
+- name: Install hyperkube
+  file:
+    src="/opt/kubernetes-v{{ kube_version }}-linux-amd64/hyperkube"
+    dest=/opt/bin/hyperkube
+    state=link
+    force=yes
+    mode=0755
+
+- name: Check kubectl exist
+  stat: path=/opt/bin/kubectl
+  register: sym
+
+- name: Install kubernetes from hyperkube
+  shell: "/opt/bin/hyperkube --make-symlinks"
+  args:
+    chdir: /opt/bin
+  when: sym.stat.islnk is not defined
+
+- name: Install nsenter
+  file:
+    src="/opt/nsenter-{{ nsenter_version }}-linux-amd64/nsenter"
+    dest=/usr/local/bin/nsenter
+    state=link
+    force=yes
+    mode=0755
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int < 15
+
+- name: Set fact of IP
+  set_fact:
+    node_ip: "{% if public_iface %}{{ hostvars[inventory_hostname]['ansible_'+public_iface]['ipv4']['address'] }}{% else %}{{ ansible_default_ipv4 }}{% endif %}"
+
+- name: Install certificates generator scripts
+  template:
+    src=cert-generator.sh.j2
+    dest=/opt/bin/cert-generator.sh
+    mode=0755
+
+- name: Generate admin and apiserver certificates
+  command: /opt/bin/cert-generator.sh admin apiserver
+
+- name: Generate master certificates
+  command: "/opt/bin/cert-generator.sh {{ node_ip }} {{ ansible_hostname }}"
+
+- name: Symlink certificates
+  file:
+    src="/etc/kubernetes/certs/{{ node_ip }}.{{ item }}"
+    dest="/etc/kubernetes/certs/kubelet.{{ item }}"
+    state=link
+    force=yes
+    mode=0600
+  with_items:
+    - key
+    - crt
+
+- name: Load docker images for master
+  command: "docker load -i /opt/docker-images/{{ item }}.tar"
+  with_items:
+    - pause-amd64_{{ pause_version }}
+    - kube-addon-manager-amd64_v{{ kube_addon_manager_version }}
+    - calico-cni_v{{ calico_cni_version }}
+    - calico-ctl_v{{ calico_ctl_version }}
+    - calico-node_v{{ calico_node_version }}
+  when: not net_install
+
+- include: configure.yml
+  tags:
+    - configure
+
+- include: start.yml
+  when: kube_modified == true
+
+- include: restart.yml
+  when: kube_modified == true and kube_started.changed == false
+  tags:
+    - restart
+
+- name: Install kube-addon-manager
+  template:
+    src=addon-manager.json.j2
+    dest=/etc/kubernetes/manifests/addon-manager.json
+    mode=0644
+
+- name: Install calico network
+  template:
+    src=calico.yaml.j2
+    dest=/etc/kubernetes/addons/calico.yaml
+    mode=0644

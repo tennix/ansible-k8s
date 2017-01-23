@@ -1,0 +1,32 @@
+---
+- name: Ensure k8s-deploy directory exist
+  file:
+    path=k8s-deploy/images
+    state=directory
+    mode=0755
+    recurse=yes
+
+- name: Get kubernetes binary
+  get_url:
+    url="https://storage.googleapis.com/kubernetes-release/release/v{{ kube_version }}/bin/linux/amd64/hyperkube"
+    dest="kubernetes-v{{ kube_version }}-linux-amd64/hyperkube"
+    mode=0755
+
+- name: Compress kubernetes binary
+  archive:
+    path="kubernetes-v{{ kube_version }}-linux-amd64"
+    dest="k8s-deploy/kubernetes-v{{ kube_version }}-linux-amd64.tar.gz"
+
+- name: Get etcd binary
+  get_url:
+    url="https://github.com/coreos/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest="k8s-deploy/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+
+- include: get-image.yml
+  when: not net_install
+
+- name: Create all in one tar file
+  archive:
+    path=k8s-deploy
+    dest=k8s-deploy.tar.gz
+  when: all_in_one

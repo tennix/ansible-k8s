@@ -1,0 +1,13 @@
+---
+- name: Install upstart files
+  copy: src=etcd.upstart dest=/etc/init/etcd.conf mode=0644
+  register: etcd_config1
+
+- name: Configure etcd
+  template: src=etcd.j2 dest=/etc/etcd/etcd mode=0644
+  register: etcd_config2
+
+- name: Setting etcd_modified fact to true
+  set_fact:
+    etcd_modified: true
+  when: etcd_config1.changed == true or etcd_config2.changed == true

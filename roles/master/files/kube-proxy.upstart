@@ -1,0 +1,18 @@
+description "Kubernetes proxy"
+
+respawn
+
+start on started kube-apiserver
+stop on stopping kube-apiserver
+
+script
+    HYPERKUBE=/opt/bin/hyperkube
+    LOG_DIR=/var/log/kubernetes
+    if [ -f /etc/kubernetes/kube-proxy ]; then
+        . /etc/kubernetes/kube-proxy
+    fi
+    mkdir -p /var/log/kubernetes
+    exec "$HYPERKUBE" proxy \
+    ${KUBE_PROXY_ARGS} \
+    >> "${LOG_DIR}/kube-proxy.log" 2>&1
+end script

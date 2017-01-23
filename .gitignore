@@ -1,0 +1,6 @@
+*.tar
+*.tar.gz
+retry_files/
+fact_files/
+.vagrant/
+tmp/

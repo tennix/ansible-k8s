@@ -1,0 +1,18 @@
+description "Kubernetes scheduler"
+
+respawn
+
+start on started kube-apiserver
+stop on stopping kube-apiserver
+
+script
+    HYPERKUBE=/opt/bin/hyperkube
+    LOG_DIR=/var/log/kubernetes
+    if [ -f /etc/kubernetes/kube-scheduler ]; then
+        . /etc/kubernetes/kube-scheduler
+    fi
+    mkdir -p /var/log/kubernetes
+    exec "$HYPERKUBE" scheduler \
+    ${KUBE_SCHEDULER_ARGS} \
+    >> "${LOG_DIR}/kube-scheduler.log" 2>&1
+end script

@@ -1,0 +1,25 @@
+description "Kubernetes kubelet"
+
+respawn
+
+start on started docker
+stop on stopping docker
+
+script
+    HYPERKUBE=/opt/bin/hyperkube
+    LOG_DIR=/var/log/kubernetes
+    if [ -f /etc/kubernetes/kubelet ]; then
+        . /etc/kubernetes/kubelet
+    fi
+    mkdir -p /var/log/kubernetes
+    exec "$HYPERKUBE" kubelet \
+    ${KUBE_DNS} \
+    ${KUBELET_CONFIG} \
+    ${KUBELET_ADDRESS} \
+    ${KUBELET_PORT} \
+    ${KUBELET_HOSTNAME} \
+    ${KUBELET_NETWORK} \
+    ${KUBELET_MANIFESTS} \
+    ${KUBELET_ARGS} \
+    >> "${LOG_DIR}/kubelet.log" 2>&1
+end script

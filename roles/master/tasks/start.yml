@@ -1,0 +1,19 @@
+---
+- name: Enable kubernetes services
+  service: name={{ item }} enabled=yes
+  with_items:
+    - kubelet
+    - kube-apiserver
+    - kube-proxy
+    - kube-scheduler
+    - kube-controller-manager
+
+- name: Start kubernetes services
+  service: name={{ item }} state=started
+  with_items:
+    - kubelet
+    - kube-apiserver
+    - kube-proxy
+    - kube-scheduler
+    - kube-controller-manager
+  register: kube_started

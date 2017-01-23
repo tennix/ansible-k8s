@@ -1,0 +1,28 @@
+---
+- name: Ensure /opt/bin directory exist
+  file: path=/opt/bin state=directory mode=0755
+
+- name: Ensure etcd conf directory exist
+  file: path=/etc/etcd state=directory mode=0755
+
+- name: Create symlinks
+  file:
+    src="/opt/etcd-v{{ etcd_version }}-linux-amd64/{{ item }}"
+    dest="/opt/bin/{{ item }}"
+    state=link
+    mode=0755
+  with_items:
+    - etcd
+    - etcdctl
+
+- include: configure.yml
+  tags:
+    - configure
+
+- include: start.yml
+  when: etcd_modified == true
+
+- include: restart.yml
+  when: etcd_modified == true and etcd_started.changed == false
+  tags:
+    - restart

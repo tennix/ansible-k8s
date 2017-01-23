@@ -1,0 +1,17 @@
+cluster_name: cluster.local
+kube_master_ip: 10.7.0.10
+kube_service_cidr: 10.254.0.0/16
+calico_ippool_cidr: 172.16.0.0/16
+concurrent_node: 3              # deploy node concurrency
+
+essentials_installed: false # essential packages(docker,nsenter,socat...) installed
+net_install: false
+all_in_one: false
+
+public_iface: eth1              # for vagrant change this to eth1
+
+# kube-addons
+kube_ui: false
+cluster_logging: false
+cluster_monitoring: false
+kube_network_policy: false

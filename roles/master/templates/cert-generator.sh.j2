@@ -1,0 +1,132 @@
+#!/bin/bash
+
+# This script is inspired by https://coreos.com/kubernetes/docs/latest/openssl.html
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+DEBUG="${DEBUG:-false}"
+
+if [ "${DEBUG}" == "true" ]; then
+    set -x
+fi
+
+service_range="{{ kube_service_cidr }}"
+cert_ip="{{ kube_master_ip }}"
+dns_domain="{{ cluster_name }}"
+cert_dir=${CERT_DIR:-/etc/kubernetes/certs}
+expires=1000
+
+tmpdir=$(mktemp -d -t kubernetes_cacert.XXXXXX)
+trap 'rm -rf "${tmpdir}"' EXIT
+cd "${tmpdir}"
+
+# Calculate the first ip address in the service range
+octets=($(echo "${service_range}" | sed -e 's|/.*||' -e 's/\./ /g'))
+((octets[3]+=1))
+service_ip=$(echo "${octets[*]}" | sed 's/ /./g')
+
+function gen_ca() {
+    openssl genrsa -out ca.key 2048
+    openssl req -x509 -new -nodes -key ca.key -days "${expires}" -out ca.crt -subj "/CN=kube-ca"
+}
+
+function gen_admin_cert() {
+    openssl genrsa -out admin.key 2048
+    openssl req -new -key admin.key -out admin.csr -subj "/CN=kube-admin"
+    openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out admin.crt -days "${expires}"
+}
+
+function gen_node_cert() {
+    local node_ip=$1
+    local node_fqdn=$2
+    cat > node-openssl.cnf <<EOF
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+[alt_names]
+IP.1 = ${node_ip}
+EOF
+    openssl genrsa -out "${node_ip}".key 2048
+    openssl req -new -key "${node_ip}".key -out "${node_ip}".csr -subj "/CN=${node_fqdn}" -config node-openssl.cnf
+    openssl x509 -req -in "${node_ip}".csr -CA ca.crt -CAkey ca.key -CAcreateserial -out "${node_ip}".crt -days "${expires}" -extensions v3_req -extfile node-openssl.cnf
+}
+
+function gen_apiserver_cert() {
+    cat > openssl.cnf <<EOF
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = kubernetes
+DNS.2 = kubernetes.default
+DNS.3 = kubernetes.default.svc
+DNS.4 = kubernetes.default.svc.${dns_domain}
+IP.1 = ${service_ip}
+IP.2 = ${cert_ip}
+EOF
+    openssl genrsa -out apiserver.key 2048
+    openssl req -new -key apiserver.key -out apiserver.csr -subj "/CN=kube-apiserver" -config openssl.cnf
+    openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out apiserver.crt -days "${expires}" -extensions v3_req -extfile openssl.cnf
+
+}
+
+if [[ $# != 2 ]]; then
+    echo "Usage:
+    $0 <node_ip> <node_fqdn>
+    $0 admin apiserver"
+    exit 0
+fi
+
+if [[ ! -f "${cert_dir}/ca.crt" ]]; then
+    gen_ca
+    cp ca.key ca.crt "${cert_dir}"
+    chmod 0600 "${cert_dir}/ca.key" "${cert_dir}/ca.crt"
+    echo "Root certificates created $(date)"
+else
+    echo "Root certificates already found, not recreating."
+fi
+
+cp "${cert_dir}/ca.key" "${cert_dir}/ca.crt" .
+
+if [[ $1 == "admin" || $1 == "apiserver" ]]; then
+    if [[ ! -f "${cert_dir}/admin.crt" ]]; then
+	gen_admin_cert
+	cp admin.key admin.crt "${cert_dir}"
+	chmod 0600 "${cert_dir}/admin.key" "${cert_dir}/admin.crt"
+	echo "Admin certificates created $(date)"
+    else
+	echo "Admin certificates already found, not recreating."
+    fi
+
+    if [[ ! -f "${cert_dir}/apiserver.crt" ]]; then
+	gen_apiserver_cert
+	cp apiserver.key apiserver.crt "${cert_dir}"
+	chmod 0600 "${cert_dir}/apiserver.key" "${cert_dir}/apiserver.crt"
+	echo "Apiserver certificates created $(date)"
+    else
+	echo "Apiserver certificates already found, not recreating."
+    fi
+else
+    node_ip=$1
+    node_fqdn=$2
+    if [[ ! -f "${cert_dir}/${node_ip}.crt" ]]; then
+	gen_node_cert "${node_ip}" "${node_fqdn}"
+	cp "${node_ip}.key" "${node_ip}.crt" "${cert_dir}"
+	chmod 0600 "${cert_dir}/${node_ip}.key" "${cert_dir}/${node_ip}.crt"
+	echo "${node_ip}.crt created $(date)"
+    else
+	echo "${node_ip}.crt already found, not recreating."
+    fi
+fi

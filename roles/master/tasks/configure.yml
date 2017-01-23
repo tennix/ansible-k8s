@@ -1,0 +1,38 @@
+---
+- name: Install kubelet kubeconfig
+  template:
+    src=kubelet.kubeconfig.j2
+    dest=/etc/kubernetes/kubelet.kubeconfig
+    mode=0644
+  register: kube_config1
+
+- name: Install kubernetes upstart files
+  copy:
+    src="{{ item }}.upstart"
+    dest="/etc/init/{{ item }}.conf"
+    mode=0644
+  with_items:
+    - kubelet
+    - kube-apiserver
+    - kube-proxy
+    - kube-scheduler
+    - kube-controller-manager
+  register: kube_config2
+
+- name: Install kubernetes configuration files
+  template:
+    src="{{ item }}.j2"
+    dest="/etc/kubernetes/{{ item }}"
+    mode=0644
+  with_items:
+    - kubelet
+    - kube-apiserver
+    - kube-proxy
+    - kube-scheduler
+    - kube-controller-manager
+  register: kube_config3
+
+- name: Setting kube_modified fact to true
+  set_fact:
+    kube_modified: true
+  when: kube_config1.changed == true or kube_config2.changed == true or kube_config3.changed == true

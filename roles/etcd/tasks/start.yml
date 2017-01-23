@@ -1,0 +1,7 @@
+---
+- name: Enable etcd autostart
+  service: name=etcd enabled=yes
+
+- name: Start etcd
+  service: name=etcd state=started
+  register: etcd_started

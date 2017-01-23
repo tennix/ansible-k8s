@@ -1,0 +1,13 @@
+KUBE_API_ADDRESS="--insecure-bind-address=127.0.0.1"
+
+KUBE_API_PORT="--secure-port=443"
+
+KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range={{ kube_service_cidr }}"
+
+KUBE_ETCD_SERVERS="--etcd-servers={% for node in groups['etcd'] %}http://{{ node }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
+
+KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,ResourceQuota"
+
+KUBE_TLS="--tls-cert-file=/etc/kubernetes/certs/apiserver.crt --tls-private-key-file=/etc/kubernetes/certs/apiserver.key"
+
+KUBE_API_ARGS="--client-ca-file=/etc/kubernetes/certs/ca.crt --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --allow-privileged=true --anonymous-auth=false --service-account-key-file=/etc/kubernetes/certs/apiserver.crt --bind-address=0.0.0.0"

@@ -1,0 +1,25 @@
+description "Kubernetes apiserver"
+
+respawn
+
+# start in conjunction with etcd
+start on started etcd
+stop on stopping etcd
+
+script
+    HYPERKUBE=/opt/bin/hyperkube
+    LOG_DIR=/var/log/kubernetes
+    if [ -f /etc/kubernetes/kube-apiserver ]; then
+        . /etc/kubernetes/kube-apiserver
+    fi
+    mkdir -p $LOG_DIR
+    exec "$HYPERKUBE" apiserver \
+    ${KUBE_API_ADDRESS} \
+    ${KUBE_API_PORT} \
+    ${KUBE_SERVICE_ADDRESSES} \
+    ${KUBE_ETCD_SERVERS} \
+    ${KUBE_ADMISSION_CONTROL} \
+    ${KUBE_TLS} \
+    ${KUBE_API_ARGS} \
+    >> "${LOG_DIR}/kube-apiserver.log" 2>&1
+end script
