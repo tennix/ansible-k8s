@@ -17,7 +17,7 @@
   when: kube_network_policy
 
 - name: Load kubernetes dashboard images
-  command: "docker load -i /opt/docker-images/kubernetes-dashboard-amd64-v{{ kubernetes_dashboard_version }}.tar"
+  command: "docker load -i /opt/docker-images/kubernetes-dashboard-amd64_v{{ kubernetes_dashboard_version }}.tar"
   when: kube_ui
 
 - name: Load logging images

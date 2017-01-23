@@ -1,10 +1,4 @@
 ---
-- name: Create k8s group
-  group: name=k8s state=present
-
-- name: Add current user to k8s group
-  user: name={{ ansible_user_id }} group=k8s state=present
-
 - name: Set IPv4 forwarding
   sysctl:
     name=net.ipv4.ip_forward

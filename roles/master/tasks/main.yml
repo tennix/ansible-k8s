@@ -13,7 +13,7 @@
     - /etc/etcd
 
 - name: Make sure /etc/kubernetes/certs directory exist
-  file: path=/etc/kubernetes/certs state=directory group=k8s mode=0750
+  file: path=/etc/kubernetes/certs state=directory owner=root group=root mode=0700
 
 - name: Install hyperkube
   file:
@@ -44,7 +44,7 @@
 
 - name: Set fact of IP
   set_fact:
-    node_ip: "{% if public_iface %}{{ hostvars[inventory_hostname]['ansible_'+public_iface]['ipv4']['address'] }}{% else %}{{ ansible_default_ipv4 }}{% endif %}"
+    node_ip: "{% if public_iface is defined %}{{ hostvars[inventory_hostname]['ansible_'+public_iface]['ipv4']['address'] }}{% else %}{{ ansible_default_ipv4['address'] }}{% endif %}"
 
 - name: Install certificates generator scripts
   template:

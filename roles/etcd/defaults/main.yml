@@ -27,7 +27,7 @@ etcd_initial_cluster_token: etcd-k8-cluster
 # Useful on systems when default interface is not connected to other machines,
 # for example as in Vagrant+VirtualBox configuration.
 # Note that this variable can't be set in per-host manner with current implementation.
-etcd_interface: "eth1"
+etcd_interface: "{{ ansible_default_ipv4.interface }}"
 
 etcd_machine_address: "{{ hostvars[inventory_hostname]['ansible_' + etcd_interface].ipv4.address }}"
 etcd_initial_advertise_peer_urls: "{{ etcd_peer_url_scheme }}://{{ etcd_machine_address }}:{{ etcd_peer_port }}"
