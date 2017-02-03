@@ -41,7 +41,7 @@
 
 - name: Set fact of IP
   set_fact:
-    node_ip: "{% if public_iface is defined %}{{ hostvars[inventory_hostname]['ansible_'+public_iface]['ipv4']['address'] }}{% else %}{{ ansible_default_ipv4 }}{% endif %}"
+    node_ip: "{% if public_iface is defined %}{{ hostvars[inventory_hostname]['ansible_'+public_iface]['ipv4']['address'] }}{% else %}{{ ansible_default_ipv4['address'] }}{% endif %}"
 
 - name: Generate kube-node certificates
   shell: "{{ remote_bin_dir }}/cert-generator.sh {{ node_ip }} {{ ansible_hostname }}"

@@ -65,7 +65,7 @@
     src="{{ image_dir }}/{{ item }}.tar"
     dest="{{ remote_image_dir }}/{{ item }}.tar"
   with_items:
-    - elasticsearch_v{{ elasticsearch_verison }}
+    - elasticsearch_v{{ elasticsearch_version }}
     - fluentd_-elasticsearch_{{ fluentd_elasticsearch_version }}
     - kibana_{{ kibana_version }}
   when: cluster_logging

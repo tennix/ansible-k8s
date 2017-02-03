@@ -10,12 +10,14 @@
       run_once: true
       register: output
       changed_when: "'delete' in output.stdout"
+      ignore_errors: true
     - name: Drain all nodes
       shell: "{{ remote_bin_dir }}/kubectl drain {{ item }} --ignore-daemonsets"
       register: output
       when: st.stat.exists
       changed_when: "'already cordoned' not in output.stdout"
       with_items: "{{ groups['nodes'] }}"
+      ignore_errors: true
 
 - hosts: nodes
   become: true
