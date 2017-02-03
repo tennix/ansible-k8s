@@ -7,7 +7,7 @@ start on started etcd
 stop on stopping etcd
 
 script
-    HYPERKUBE=/opt/bin/hyperkube
+    HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
     if [ -f /etc/kubernetes/kube-apiserver ]; then
         . /etc/kubernetes/kube-apiserver

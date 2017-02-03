@@ -1,0 +1,9 @@
+---
+- name: Copy etcd binary
+  copy:
+    src="{{ bin_dir }}/{{ item }}"
+    dest="{{ remote_bin_dir }}/{{ item }}"
+    mode=0755
+  with_items:
+    - etcd
+    - etcdctl

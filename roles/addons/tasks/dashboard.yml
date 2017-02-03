@@ -1,0 +1,9 @@
+---
+- name: Create dashboard addons directory
+  file: path=/etc/kubernetes/addons state=directory mode=0755
+
+- name: Install kubernetes dashboard
+  template: src="dashboard/{{ item }}.yaml.j2" dest="/etc/kubernetes/addons/dashboard/{{ item }}.yaml" mode=0644
+  with_items:
+    - dashboard-controller
+    - dashboard-service

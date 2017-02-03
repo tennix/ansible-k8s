@@ -1,0 +1,29 @@
+---
+- name: Ensure remote_image_dir exist
+  file: path="{{ remote_image_dir }}" state=directory mode=0755
+
+- name: Copy docker images
+  copy:
+    src="{{ image_dir }}/{{ item }}.tar"
+    dest="{{ remote_image_dir }}/{{ item }}.tar"
+  with_items:
+    - pause-amd64_{{ pause_version }}
+    - kube-addon-manager-amd64_v{{ kube_addon_manager_version }}
+    - calico-cni_v{{ calico_cni_version }}
+    - calico-ctl_v{{ calico_ctl_version }}
+    - calico-node_v{{ calico_node_version }}
+
+- name: Set gcr fact for alias
+  set_fact:
+    gcr: gcr.io/google_containers
+
+- name: Load docker images for master
+  shell: "{{ remote_bin_dir }}/docker-load.sh {{ remote_image_dir }}/{{ item.tar }}.tar {{ item.img}}"
+  register: output
+  changed_when: "'not exist' in output.stdout"
+  with_items:
+    - { tar: 'pause-amd64_{{ pause_version }}', img: '{{ gcr }}/pause-amd64:{{ pause_version}}' }
+    - { tar: 'kube-addon-manager-amd64_v{{ kube_addon_manager_version }}', img: '{{ gcr }}/kube-addon-manager-amd64:v{{ kube_addon_manager_version }}' }
+    - { tar: 'calico-cni_v{{ calico_cni_version }}', img: 'calico/cni:v{{ calico_cni_version }}' }
+    - { tar: 'calico-ctl_v{{ calico_ctl_version }}', img: 'calico/ctl:v{{ calico_ctl_version }}' }
+    - { tar: 'calico-node_v{{ calico_node_version }}', img: 'quay.io/calico/node:v{{ calico_node_version }}' }

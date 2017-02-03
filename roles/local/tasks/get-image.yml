@@ -1,11 +1,10 @@
 ---
-- name: Set gcr
+- name: Set gcr for alias
   set_fact:
     gcr: gcr.io/google_containers
 
 - name: Save docker images from local docker
-  docker_image:
-  command: "docker save -o k8s-deploy/images/{{ item.tar }}.tar {{ item.img }}"
+  command: "docker save -o {{ image_dir }}/{{ item.tar }}.tar {{ item.img }}"
   with_items:
     - { tar: 'pause-amd64_{{ pause_version }}', img: '{{ gcr }}/pause-amd64:{{ pause_version }}' }
     - { tar: 'kube-addon-manager_{{ kube_addon_manager_version }}', img: '{{ gcr }}/kube-addon-manager-amd64:{{ kube_addon_manager_version }}' }
@@ -14,18 +13,19 @@
     - { tar: 'kube-dnsmasq-amd64_{{ kube_dnsmasq_version }}', img: '{{ gcr }}/kube-dnsmasq-amd64:{{ kube_dnsmasq_version }}'}
     - { tar: 'dnsmasq-metrics-amd64_{{ dnsmasq_metrics_version }}', img: '{{ gcr }}/dnsmasq-metrics-amd64: {{ dnsmasq_metrics_version }}' }
     - { tar: 'calico-cni_v{{ calico_cni_version }}', img: 'calico/cni:v{{ calico_cni_version }}' }
+    - { tar: 'calico-ctl_v{{ calico_ctl_version }}', img: 'calico/ctl:v{{ calico_ctl_version }}' }
     - { tar: 'calico-node_v{{ calico_node_version }}', img: 'quay.io/calico/node:v{{ calico_node_version }}'}
 
 - name: Save kube-policy-controller image from local docker
-  command: "docker save -o k8s-deploy/images/kube-policy-controller_v{{ kube_policy_controller_version }}.tar calico/kube-policy-controller:v{{ kube_policy_controller_version }}"
+  command: "docker save -o {{ image_dir }}/kube-policy-controller_v{{ kube_policy_controller_version }}.tar calico/kube-policy-controller:v{{ kube_policy_controller_version }}"
   when: kube_network_policy
 
 - name: Save dashboard image from local docker
-  command: "docker save -o k8s-deploy/images/kubernetes-dashboard-amd64_v{{ kubernetes_dashboard_version }}.tar {{ gcr }}/kubernetes-dashboard-amd64:v{{ kubernetes_dashboard_version }}"
+  command: "docker save -o {{ item_dir }}/kubernetes-dashboard-amd64_v{{ kubernetes_dashboard_version }}.tar {{ gcr }}/kubernetes-dashboard-amd64:v{{ kubernetes_dashboard_version }}"
   when: kube_ui
 
 - name: Save cluster logging images from local docker
-  command: "docker save -o k8s-deploy/images/{{ item.tar }}.tar {{ item.img }}"
+  command: "docker save -o {{ item_dir }}/{{ item.tar }}.tar {{ item.img }}"
   with_items:
     - { tar: 'elasticsearch_v{{ elasticsearch_version }}', img: '{{ gcr }}/elasticsearch:v{{ elasticsearch_version }}' }
     - { tar: 'kibana_v{ kibana_version }', img: '{{ gcr }}/kibana:v{{ kibana_version }}'}
@@ -33,7 +33,7 @@
   when: cluster_logging
 
 - name: Save cluster monitoring images from local docker
-  command: "docker save -o k8s-deploy/images/{{ item.tar }}.tar {{ item.img }}"
+  command: "docker save -o {{ item_dir }}/{{ item.tar }}.tar {{ item.img }}"
   with_items:
     - { tar: 'node-exporter_v{{ node_exporter_version }}', img: 'prom/node-exporter:v{{ node_exporter_version }}' }
     - { tar: 'prometheus_v{{ prometheus_version }}', img: 'prom/prometheus:v{{ prometheus_version }}'}

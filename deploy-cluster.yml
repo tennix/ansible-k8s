@@ -1,5 +1,6 @@
 ---
 - include: prepare.yml
+  when: not net_install
 
 - include: deploy-etcd.yml
 

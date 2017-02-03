@@ -1,38 +1,52 @@
 ---
+- name: Make sure remote_bin_dir exist
+  file: path="{{ remote_bin_dir }}" state=directory mode=0755 recurse=yes
+
 - name: Make sure directory exist
-  file: path={{ item }} state=directory mode=0755 recurse=yes
+  file: path="{{ item }}" state=directory mode=0755
   with_items:
-    - /opt/bin
+    - /opt/cni
     - /opt/cni/bin
+    - /etc/kubernetes
     - /etc/kubernetes/manifests
+    - /etc/cni
     - /etc/cni/net.d
 
 - name: Make sure /etc/kubernetes/certs directory exist
   file: path=/etc/kubernetes/certs state=directory owner=root group=root mode=0700
 
-- name: Install hyperkube
-  file:
-    src="/opt/kubernetes-v{{ kube_version }}-linux-amd64/hyperkube"
-    dest=/opt/bin/hyperkube
-    state=link
-    force=yes
+- name: Copy nsenter for ubuntu-14.04
+  copy:
+    src="{{ bin_dir }}/nsenter"
+    dest="/usr/local/bin/nsenter"
     mode=0755
+  when: ansible_distribution == 'Ubuntu'
 
-- name: Install nsenter
-  file:
-    src="/opt/nsenter-{{ nsenter_version }}-linux-amd64/nsenter"
-    dest=/usr/local/bin/nsenter
-    state=link
-    force=yes
+- name: Get kubernetes from internet
+  get_url:
+    url="https://storage.googleapis.com/kubernetes-release/release/v{{ kube_version }}/bin/linux/amd64/hyperkube"
+    dest="{{ remote_bin_dir }}/hyperkube"
     mode=0755
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_major_version|int < 15
+  when: net_install
+
+- name: Get kubernetes from localhost
+  copy:
+    src="{{ bin_dir }}/hyperkube"
+    dest="{{ remote_bin_dir }}/hyperkube"
+    mode=0755
+  when: not net_install
+
+- name: Install docker image load helper script
+  copy: src=docker-load.sh dest="{{ remote_bin_dir }}/docker-load.sh" mode=0755
 
 - name: Set fact of IP
   set_fact:
     node_ip: "{% if public_iface is defined %}{{ hostvars[inventory_hostname]['ansible_'+public_iface]['ipv4']['address'] }}{% else %}{{ ansible_default_ipv4 }}{% endif %}"
 
 - name: Generate kube-node certificates
-  command: "/opt/bin/cert-generator.sh {{ node_ip }} {{ ansible_hostname }}"
+  shell: "{{ remote_bin_dir }}/cert-generator.sh {{ node_ip }} {{ ansible_hostname }}"
+  register: output
+  changed_when: "'created' in output.stdout"
   delegate_to: "{{ groups['masters'][0] }}"
 
 - name: Fetch CA certificate from master
@@ -56,7 +70,7 @@
     dest="/etc/kubernetes/certs/kubelet.key"
 
 - name: Fetch kubelet certificate from master
-  slurp: src="/etc/kubernetes/certs/kubelet.crt"
+  slurp: src="/etc/kubernetes/certs/{{ node_ip }}.crt"
   register: kubelet_cert
   delegate_to: "{{ groups['masters'][0] }}"
 

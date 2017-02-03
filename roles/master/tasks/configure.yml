@@ -7,8 +7,8 @@
   register: kube_config1
 
 - name: Install kubernetes upstart files
-  copy:
-    src="{{ item }}.upstart"
+  template:
+    src="{{ item }}.upstart.j2"
     dest="/etc/init/{{ item }}.conf"
     mode=0644
   with_items:

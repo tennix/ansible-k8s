@@ -6,7 +6,7 @@ start on (started docker and started kube-apiserver)
 stop on (stopping docker or stopping kube-apiserver)
 
 script
-    HYPERKUBE=/opt/bin/hyperkube
+    HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
     if [ -f /etc/kubernetes/kubelet ]; then
         . /etc/kubernetes/kubelet

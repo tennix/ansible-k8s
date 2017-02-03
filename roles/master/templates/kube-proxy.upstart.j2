@@ -2,11 +2,11 @@ description "Kubernetes proxy"
 
 respawn
 
-start on started kubelet
-stop on stopping kubelet
+start on started kube-apiserver
+stop on stopping kube-apiserver
 
 script
-    HYPERKUBE=/opt/bin/hyperkube
+    HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
     if [ -f /etc/kubernetes/kube-proxy ]; then
         . /etc/kubernetes/kube-proxy

@@ -1,0 +1,18 @@
+---
+- name: Get etcd binary
+  get_url:
+    url="https://github.com/coreos/etcd/releases/download/v{{ etcd_version }}/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest="/tmp/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+
+- name: Extract etcd binary
+  unarchive:
+    src="/tmp/etcd-v{{ etcd_version }}-linux-amd64.tar.gz"
+    dest=/tmp
+    copy=no
+
+- name: Copy etcd binary to bin path
+  copy:
+    src="/tmp/etcd-v{{ etcd_version }}-linux-amd64/{{ item }}"
+    dest="{{ remote_bin_dir }}/{{ item }}"
+    mode=0755
+    copy=no

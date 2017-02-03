@@ -1,0 +1,6 @@
+---
+- name: Get kubernetes binary
+  get_url:
+    url="https://storage.googleapis.com/kubernetes-release/release/v{{ kube_version }}/bin/linux/amd64/hyperkube"
+    dest="{{ remote_bin_dir }}/hyperkube"
+    mode=0755

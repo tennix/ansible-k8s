@@ -1,3 +1,4 @@
+---
 - name: Add dockerproject key
   apt_key:
     keyserver=hkp://p80.pool.sks-keyservers.net:80
@@ -17,8 +18,8 @@
 
 - name: Install docker
   apt:
-    name=docker-engine
-    state=latest
+    name="docker-engine=1.12.*"
+    state=present
+    force=yes
     install_recommends=no
     update_cache=yes
-  when: ansible_os_family == 'Debian'

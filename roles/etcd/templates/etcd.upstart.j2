@@ -12,7 +12,7 @@ script
         . /etc/etcd/etcd
 	set +a
     fi
-    ETCD=/opt/bin/etcd
+    ETCD={{ remote_bin_dir }}/etcd
     LOG_DIR=/var/log/etcd
     DATA_DIR=/var/lib/etcd
     mkdir -p $DATA_DIR $LOG_DIR $DATA_DIR

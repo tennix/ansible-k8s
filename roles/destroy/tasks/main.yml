@@ -1,6 +1,0 @@
----
-- name: Delete all namespaces
-
-- name: Drain all nodes
-
-- name: Delete all files

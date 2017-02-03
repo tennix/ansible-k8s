@@ -1,14 +1,8 @@
 ---
-- name: Prepare binaries on local machine
+- name: Prepare binaries and docker images on local machine
   hosts: localhost
   connection: local
   become: false
   gather_facts: false
   roles:
     - local
-
-- name: Prepare binaries on remote machines
-  hosts: all
-  become: true
-  roles:
-    - remote

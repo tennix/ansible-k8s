@@ -6,7 +6,7 @@ start on started docker
 stop on stopping docker
 
 script
-    HYPERKUBE=/opt/bin/hyperkube
+    HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
     if [ -f /etc/kubernetes/kubelet ]; then
         . /etc/kubernetes/kubelet

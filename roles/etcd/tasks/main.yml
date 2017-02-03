@@ -1,19 +1,15 @@
 ---
-- name: Ensure /opt/bin directory exist
-  file: path=/opt/bin state=directory mode=0755
+- name: Ensure remote_bin_dir directory exist
+  file: path="{{ remote_bin_dir }}" state=directory mode=0755
 
 - name: Ensure etcd conf directory exist
   file: path=/etc/etcd state=directory mode=0755
 
-- name: Create symlinks
-  file:
-    src="/opt/etcd-v{{ etcd_version }}-linux-amd64/{{ item }}"
-    dest="/opt/bin/{{ item }}"
-    state=link
-    mode=0755
-  with_items:
-    - etcd
-    - etcdctl
+- include: net-install.yml
+  when: net_install
+
+- include: local-install.yml
+  when: not net_install
 
 - include: configure.yml
   tags:

@@ -1,11 +1,6 @@
 ---
 - name: Ensure addons directory exist
-  file: path={{ item }} state=directory mode=0755
-  with_items:
-    - /etc/kubernetes/addons/dns
-    - /etc/kubernetes/addons/dashboard
-    - /etc/kubernetes/addons/logging
-    - /etc/kubernetes/addons/monitoring
+  file: path=/etc/kubernetes/addons/dns state=directory mode=0755
 
 - name: Install kubedns
   template: src="dns/{{ item }}.yaml.j2" dest="/etc/kubernetes/addons/dns/{{ item }}.yaml" mode=0644
@@ -13,29 +8,11 @@
     - skydns-rc
     - skydns-svc
 
-- name: Install kubernetes dashboard
-  template: src="dashboard/{{ item }}.yaml.j2" dest="/etc/kubernetes/addons/dashboard/{{ item }}.yaml" mode=0644
-  with_items:
-    - dashboard-controller
-    - dashboard-service
+- include: dashboard.yml
   when: kube_ui
 
-- name: Install logging addons
-  template: src="logging/{{ item }}.yaml.j2" dest="/etc/kubernetes/addons/logging/{{ item }}.yaml" mode=0644
-  with_items:
-    - es-rc
-    - es-svc
-    - fluentd-ds
-    - kibana-rc
-    - kibana-svc
+- include: logging.yml
   when: cluster_logging
 
-- name: Install monitoring addons
-  template: src="monitoring/{{ item }}.yaml.j2" dest="/etc/kubernetes/addons/monitoring/{{ item }}.yaml" mode=0644
-  with_items:
-    - node-exporter-ds
-    - prometheus-rc
-    - prometheus-svc
-    - grafana-rc
-    - grafana-svc
+- include: monitoring.yml
   when: cluster_monitoring

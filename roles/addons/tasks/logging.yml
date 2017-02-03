@@ -1,0 +1,12 @@
+---
+- name: Create logging addons directory
+  file: path=/etc/kubernetes/addons/logging state=directory mode=0755
+
+- name: Install logging addons
+  template: src="logging/{{ item }}.yaml.j2" dest="/etc/kubernetes/addons/logging/{{ item }}.yaml" mode=0644
+  with_items:
+    - es-rc
+    - es-svc
+    - fluentd-ds
+    - kibana-rc
+    - kibana-svc

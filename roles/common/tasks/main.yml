@@ -7,14 +7,8 @@
     state=present
     reload=yes
 
+- name: Ensure remote_bin_dir directory exist
+  file: path="{{ remote_bin_dir }}" state=directory mode=0755
+
 - include: install-essentials.yml
   when: not essentials_installed
-
-- include: net-install.yml
-  when: net_install
-
-- include: all-in-one.yml
-  when: not net_install and all_in_one
-
-- include: separate.yml
-  when: not net_install and not all_in_one
