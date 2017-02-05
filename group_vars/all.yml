@@ -4,11 +4,11 @@ essentials_installed: false # essential packages(docker,nsenter,socat...) instal
 net_install: false
 
 ######### directory settings ##########
-download_dir: downloads
-bin_dir: resources/bin
-image_dir: resources/image
-remote_bin_dir: /opt/bin
-remote_image_dir: /opt/images
+download_dir: "{{ playbook_dir }}/downloads"
+bin_dir: "{{ playbook_dir }}/resources/bin"
+image_dir: "{{ playbook_dir }}/resources/image"
+remote_bin_dir: "/opt/bin"
+remote_image_dir: "/opt/images"
 
 
 ########### addons settings ###########
@@ -21,42 +21,42 @@ kube_network_policy: false
 
 ######### version settings ###########
 ## binaries
-etcd_version: 2.2.5
-kube_version: 1.5.1
-nsenter_version: 2.25.2
+etcd_version: "2.2.5"
+kube_version: "1.5.1"
+nsenter_version: "2.25.2"
 
 ## images
 # util
-pause_version: 3.0
-exechealthz_version: 1.2
+pause_version: "3.0"
+exechealthz_version: "1.2"
 # addon-manager
-kube_addon_manager_version: 6.1
+kube_addon_manager_version: "6.1"
 # dns
-kubedns_version: 1.9
-kube_dnsmasq_version: 1.4
-dnsmasq_metrics_version: 1.0
+kubedns_version: "1.9"
+kube_dnsmasq_version: "1.4"
+dnsmasq_metrics_version: "1.0"
 # network
-calico_cni_version: 1.5.5
-calico_node_version: 1.0.0
-calico_ctl_version: 1.0.0
-kube_policy_controller_version: 0.5.1
+calico_cni_version: "1.5.5"
+calico_node_version: "1.0.0"
+calico_ctl_version: "1.0.0"
+kube_policy_controller_version: "0.5.1"
 # dashboard
-kubernetes_dashboard_version: 1.5.0
+kubernetes_dashboard_version: "1.5.0"
 # logging
-fluentd_elasticsearch_version: 1.20
-elasticsearch_version: 2.4.1
-kibana_version: 4.6.1
+fluentd_elasticsearch_version: "1.20"
+elasticsearch_version: "2.4.1"
+kibana_version: "4.6.1"
 # monitoring
-prometheus_version: 1.4.1
-node_exporter_version: 0.13.0
-grafana_version: 4.0.2
+prometheus_version: "1.4.1"
+node_exporter_version: "0.13.0"
+grafana_version: "4.0.2"
 
 ######### network settings ##########
-cluster_name: cluster.local
-kube_master_ip: 10.7.0.10
-kube_service_cidr: 10.254.0.0/16
-calico_ippool_cidr: 172.16.0.0/16
-public_iface: eth1              # for vagrant change this to eth1
+cluster_name: "cluster.local"
+kube_master_ip: "10.7.0.10"
+kube_service_cidr: "10.254.0.0/16"
+calico_ippool_cidr: "172.16.0.0/16"
+public_iface: "eth1"            # for vagrant change this to eth1
 
 dns_server: "{{ kube_service_cidr|ipaddr('net')|ipaddr(10)|ipaddr('address') }}"
 dns_domain: "{{ cluster_name }}"
