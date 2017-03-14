@@ -6,6 +6,12 @@
     mode=0644
   register: kube_config1
 
+- name: Install kube config
+  template:
+    src=kube-config.j2
+    dest=/etc/kubernetes/config
+    mode=0644
+
 - name: Install kubernetes configuration files
   template:
     src="{{ item }}.j2"
