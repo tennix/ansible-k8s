@@ -5,7 +5,6 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 [Service]
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/controller-manager
-User=kube
 ExecStart={{ remote_bin_dir }}/hyperkube controller-manager \
 	    $KUBE_LOGTOSTDERR \
 	    $KUBE_LOG_LEVEL \
