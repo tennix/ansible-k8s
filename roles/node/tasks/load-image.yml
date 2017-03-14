@@ -34,7 +34,7 @@
 
     - { tar: 'kubedns-amd64_{{ kubedns_version }}', img: '{{ gcr }}/kubedns-amd64:{{ kubedns_version }}'}
     - { tar: 'kube-dnsmasq-amd64_{{ kube_dnsmasq_version }}', img: '{{ gcr }}/kube-dnsmasq-amd64:{{ kube_dnsmasq_version }}'}
-    - { tar: 'dnsmasq-metrics-amd64_{{ dnsmasq_metrics_version }}', img: '{{ gcr }}/dnsmasq-metrics-amd64: {{ dnsmasq_metrics_version }}' }
+    - { tar: 'dnsmasq-metrics-amd64_{{ dnsmasq_metrics_version }}', img: '{{ gcr }}/dnsmasq-metrics-amd64:{{ dnsmasq_metrics_version }}' }
 
 - name: Copy kube-policy-controller image
   copy:

@@ -16,6 +16,7 @@
     name='{{ item }}'
     state=present
   with_items:
+    - ca-certificates
     - socat
     - util-linux
   when: ansible_os_family == "RedHat"
