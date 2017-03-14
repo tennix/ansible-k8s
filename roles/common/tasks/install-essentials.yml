@@ -1,5 +1,5 @@
 ---
-- name: Install essentials packages
+- name: Install essential packages
   apt:
     name='{{ item }}'
     state=present
@@ -10,5 +10,14 @@
     - socat
     - util-linux                # nsenter
   when: ansible_os_family == 'Debian'
+
+- name: Install essential packages
+  yum:
+    name='{{ item }}'
+    state=present
+  with_items:
+    - socat
+    - util-linux
+  when: ansible_os_family == "RedHat"
 
 - include: install-docker.yml
