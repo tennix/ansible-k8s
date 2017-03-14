@@ -13,6 +13,9 @@
     - /etc/cni
     - /etc/cni/net.d
 
+- name: Create kube user
+  user: name=kube state=present shell=/sbin/nologin home=/var/lib/kubelet
+
 - name: Make sure /etc/kubernetes/certs directory exist
   file: path=/etc/kubernetes/certs state=directory owner=root group=root mode=0700
 

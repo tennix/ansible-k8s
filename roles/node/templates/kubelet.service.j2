@@ -8,7 +8,7 @@ Requires=docker.service
 WorkingDirectory=/var/lib/kubelet
 EnvironmentFile=-/etc/kubernetes/config
 EnvironmentFile=-/etc/kubernetes/kubelet
-ExecStart={{ remote_bin }}/hyperkube kubelet \
+ExecStart={{ remote_bin_dir }}/hyperkube kubelet \
 	    $KUBE_LOGTOSTDERR \
 	    $KUBE_LOG_LEVEL \
 	    $KUBE_DNS \
