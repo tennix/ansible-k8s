@@ -1,0 +1,4 @@
+---
+- name: Install upstart files
+  template: src=etcd.upstart.j2 dest=/etc/init/etcd.conf mode=0644
+  register: etcd_config2

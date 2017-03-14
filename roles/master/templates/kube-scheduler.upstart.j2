@@ -8,11 +8,13 @@ stop on stopping kube-apiserver
 script
     HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
-    if [ -f /etc/kubernetes/kube-scheduler ]; then
-        . /etc/kubernetes/kube-scheduler
+    . /etc/kubernetes/config  # load general config
+    if [ -f /etc/kubernetes/scheduler ]; then
+        . /etc/kubernetes/scheduler
     fi
     mkdir -p /var/log/kubernetes
     exec "$HYPERKUBE" scheduler \
+    ${KUBE_LOG_LEVEL} \
     ${KUBE_SCHEDULER_ARGS} \
-    >> "${LOG_DIR}/kube-scheduler.log" 2>&1
+    >> "${LOG_DIR}/scheduler.log" 2>&1
 end script
