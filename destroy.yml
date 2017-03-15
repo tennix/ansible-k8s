@@ -103,11 +103,18 @@
     - name: Delete all files
       file: path={{ item }} state=absent
       with_items:
+        - /etc/init/etcd.conf
         - /etc/init/kubelet.conf
         - /etc/init/kube-proxy.conf
         - /etc/init/kube-scheduler.conf
         - /etc/init/kube-controller-manager.conf
         - /etc/init/kube-apiserver.conf
+        - /etc/systemd/system/etcd.service
+        - /etc/systemd/system/kubelet.service
+        - /etc/systemd/system/kube-proxy.service
+        - /etc/systemd/system/kube-scheduler.service
+        - /etc/systemd/system/kube-controller-manager.service
+        - /etc/systemd/system/kube-apiserver.service
         - /etc/kubernetes
         - /etc/etcd
         - /etc/cni
