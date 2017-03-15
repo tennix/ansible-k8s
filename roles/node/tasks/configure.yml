@@ -8,7 +8,7 @@
 
 - name: Install kube config
   template:
-    src=kubelet.kubeconfig.j2
+    src=kube-config.j2
     dest=/etc/kubernetes/config
     mode=0644
 
