@@ -24,16 +24,19 @@
   tasks:
     - name: Detect service exist
       stat: path=/etc/init/kubelet.conf
-      register: st
+      register: st1
+    - name: Detect service exist
+      stat: path=/etc/systemd/system/kubelet.service
+      register: st2
     - name: Disable node services
       service: name={{ item }} enabled=no
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-proxy
     - name: Stop node services
       service: name={{ item }} state=stopped
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-proxy
@@ -44,10 +47,13 @@
   tasks:
     - name: Detect service exist
       stat: path=/etc/init/kube-apiserver.conf
-      register: st
+      register: st1
+    - name: Detect service exist
+      stat: path=/etc/systemd/system/kube-apiserver.service
+      register: st2
     - name: Disable master services
       service: name={{ item }} enabled=no
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-apiserver
@@ -56,7 +62,7 @@
         - kube-controller-manager
     - name: Stop master services
       service: name={{ item }} state=stopped
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-apiserver
@@ -70,13 +76,16 @@
   tasks:
     - name: Detect service exist
       stat: path=/etc/init/etcd.conf
-      register: st
+      register: st1
+    - name: Detect service exist
+      stat: path=/etc/systemd/system/etcd.service
+      register: st2
     - name: Disable services
       service: name=etcd enabled=no
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
     - name: Stop services
       service: name=etcd state=stopped
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
 
 
 - hosts: all
