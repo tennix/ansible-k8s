@@ -147,3 +147,5 @@
         - /var/lib/kubelet
         - /var/log/etcd
         - /var/lib/etcd
+        - /var/run/kubernetes
+        - /var/run/calico
