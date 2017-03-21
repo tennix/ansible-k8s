@@ -1,1 +1,5 @@
+{% if cloud == "ucloud" %}
+KUBE_CONTROLLER_MANAGER_ARGS="--cloud-provider=ucloud --cloud-config=/etc/kubernetes/ucloud.gcfg --service-account-private-key-file=/etc/kubernetes/certs/apiserver.key --root-ca-file=/etc/kubernetes/certs/ca.crt"
+{% else %}
 KUBE_CONTROLLER_MANAGER_ARGS="--service-account-private-key-file=/etc/kubernetes/certs/apiserver.key --root-ca-file=/etc/kubernetes/certs/ca.crt"
+{% endif %}

@@ -8,4 +8,8 @@ KUBELET_CONFIG="--kubeconfig=/etc/kubernetes/kubelet.kubeconfig --require-kubeco
 # this requires ansible machine has python-netaddr installed
 KUBE_DNS="--cluster-domain={{ dns_domain }} --cluster-dns={{ dns_server }}"
 
+{% if cloud == "ucloud" %}
+KUBELET_ARGS="--cloud-provider=ucloud --cloud-config=/etc/kubernetes/ucloud.gcfg --register-node=true --register-schedulable=false"
+{% else %}
 KUBELET_ARGS="--register-node=true --register-schedulable=false"
+{% endif %}

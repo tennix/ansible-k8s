@@ -87,6 +87,13 @@
 - include: load-docker.yml
   when: not net_install
 
+- name: Install cloud configuration
+  template:
+    src=ucloud.gcfg.j2
+    dest=/etc/kubernetes/ucloud.gcfg
+    mode=0600
+  when: cloud == "ucloud"
+
 - include: configure.yml
   tags:
     - configure

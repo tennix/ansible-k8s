@@ -60,3 +60,13 @@ public_iface: "eth1"            # for vagrant change this to eth1
 
 dns_server: "{{ kube_service_cidr|ipaddr('net')|ipaddr(10)|ipaddr('address') }}"
 dns_domain: "{{ cluster_name }}"
+
+########## cloud provider ###########
+cloud: "ucloud"                 # if on bare metal, leave this empty
+
+######### ucloud settings ###########
+ucloud_api_url: "https://api.ucloud.cn"
+ucloud_region:
+ucloud_project_id:
+ucloud_public_key:
+ucloud_private_key:

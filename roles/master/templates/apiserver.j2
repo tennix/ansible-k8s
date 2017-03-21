@@ -10,4 +10,8 @@ KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,LimitRanger,Servi
 
 KUBE_TLS="--tls-cert-file=/etc/kubernetes/certs/apiserver.crt --tls-private-key-file=/etc/kubernetes/certs/apiserver.key"
 
+{% if cloud == "ucloud" %}
+KUBE_API_ARGS="--cloud-provider=ucloud --cloud-config=/etc/kubernetes/ucloud.gcfg --client-ca-file=/etc/kubernetes/certs/ca.crt --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --anonymous-auth=false --service-account-key-file=/etc/kubernetes/certs/apiserver.crt --bind-address=0.0.0.0"
+{% else %}
 KUBE_API_ARGS="--client-ca-file=/etc/kubernetes/certs/ca.crt --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --anonymous-auth=false --service-account-key-file=/etc/kubernetes/certs/apiserver.crt --bind-address=0.0.0.0"
+{% endif %}
