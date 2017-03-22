@@ -6,18 +6,11 @@
     mode=0644
   register: kube_config1
 
-- name: Install kubernetes upstart files
+- name: Install kube config
   template:
-    src="{{ item }}.upstart.j2"
-    dest="/etc/init/{{ item }}.conf"
+    src=kube-config.j2
+    dest=/etc/kubernetes/config
     mode=0644
-  with_items:
-    - kubelet
-    - kube-apiserver
-    - kube-proxy
-    - kube-scheduler
-    - kube-controller-manager
-  register: kube_config2
 
 - name: Install kubernetes configuration files
   template:
@@ -26,11 +19,17 @@
     mode=0644
   with_items:
     - kubelet
-    - kube-apiserver
-    - kube-proxy
-    - kube-scheduler
-    - kube-controller-manager
-  register: kube_config3
+    - apiserver
+    - proxy
+    - scheduler
+    - controller-manager
+  register: kube_config2
+
+- include: upstart-config.yml
+  when: init_system == "upstart"
+
+- include: systemd-config.yml
+  when: init_system == "systemd"
 
 - name: Setting kube_modified fact to true
   set_fact:

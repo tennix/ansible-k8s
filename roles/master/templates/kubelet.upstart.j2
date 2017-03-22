@@ -8,11 +8,13 @@ stop on (stopping docker or stopping kube-apiserver)
 script
     HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
+    . /etc/kubernetes/config
     if [ -f /etc/kubernetes/kubelet ]; then
         . /etc/kubernetes/kubelet
     fi
     mkdir -p /var/log/kubernetes
     exec "$HYPERKUBE" kubelet \
+    ${KUBE_LOG_LEVEL} \
     ${KUBE_DNS} \
     ${KUBELET_CONFIG} \
     ${KUBELET_ADDRESS} \
@@ -20,6 +22,7 @@ script
     ${KUBELET_HOSTNAME} \
     ${KUBELET_NETWORK} \
     ${KUBELET_MANIFESTS} \
+    ${KUBE_ALLOW_PRIV} \
     ${KUBELET_ARGS} \
     >> "${LOG_DIR}/kubelet.log" 2>&1
 end script

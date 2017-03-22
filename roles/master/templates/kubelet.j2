@@ -8,4 +8,4 @@ KUBELET_CONFIG="--kubeconfig=/etc/kubernetes/kubelet.kubeconfig --require-kubeco
 # this requires ansible machine has python-netaddr installed
 KUBE_DNS="--cluster-domain={{ dns_domain }} --cluster-dns={{ dns_server }}"
 
-KUBELET_ARGS="--allow-privileged=true --register-node=true --register-schedulable=false"
+KUBELET_ARGS="--register-node=true --register-schedulable=false"
