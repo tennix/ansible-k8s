@@ -1,0 +1,15 @@
+[Unit]
+Description=Etcd Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/lib/etcd/
+EnvironmentFile=-/etc/etcd/etcd
+User=etcd
+ExecStart={{ remote_bin_dir }}/etcd
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

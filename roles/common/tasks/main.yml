@@ -7,6 +7,18 @@
     state=present
     reload=yes
 
+- name: Determine if systemd
+  raw: "test -d /run/systemd/system"
+  register: t
+  changed_when: false
+  failed_when: false
+  always_run: yes
+
+- name: Set init_system fact
+  set_fact:
+    init_system: systemd
+  when: t.rc == 0
+
 - name: Ensure remote_bin_dir directory exist
   file: path="{{ remote_bin_dir }}" state=directory mode=0755
 

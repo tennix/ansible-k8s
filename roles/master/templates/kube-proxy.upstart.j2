@@ -8,11 +8,13 @@ stop on stopping kube-apiserver
 script
     HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
-    if [ -f /etc/kubernetes/kube-proxy ]; then
-        . /etc/kubernetes/kube-proxy
+    . /etc/kubernetes/config  # load general config
+    if [ -f /etc/kubernetes/proxy ]; then
+        . /etc/kubernetes/proxy
     fi
     mkdir -p /var/log/kubernetes
     exec "$HYPERKUBE" proxy \
+    ${KUBE_LOG_LEVEL} \
     ${KUBE_PROXY_ARGS} \
-    >> "${LOG_DIR}/kube-proxy.log" 2>&1
+    >> "${LOG_DIR}/proxy.log" 2>&1
 end script

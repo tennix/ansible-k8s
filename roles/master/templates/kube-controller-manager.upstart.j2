@@ -8,12 +8,14 @@ stop on stopping kube-apiserver
 script
     HYPERKUBE={{ remote_bin_dir }}/hyperkube
     LOG_DIR=/var/log/kubernetes
-    if [ -f /etc/kubernetes/kube-controller-manager ]; then
-        . /etc/kubernetes/kube-controller-manager
+    . /etc/kubernetes/config  # load general config
+    if [ -f /etc/kubernetes/controller-manager ]; then
+        . /etc/kubernetes/controller-manager
     fi
     mkdir -p /var/log/kubernetes
     exec "$HYPERKUBE" controller-manager \
+    ${KUBE_LOG_LEVEL} \
     ${KUBE_MASTER} \
     ${KUBE_CONTROLLER_MANAGER_ARGS} \
-    >> "${LOG_DIR}/kube-controller-manager.log" 2>&1
+    >> "${LOG_DIR}/controller-manager.log" 2>&1
 end script

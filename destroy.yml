@@ -24,16 +24,19 @@
   tasks:
     - name: Detect service exist
       stat: path=/etc/init/kubelet.conf
-      register: st
+      register: st1
+    - name: Detect service exist
+      stat: path=/etc/systemd/system/kubelet.service
+      register: st2
     - name: Disable node services
       service: name={{ item }} enabled=no
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-proxy
     - name: Stop node services
       service: name={{ item }} state=stopped
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-proxy
@@ -44,10 +47,13 @@
   tasks:
     - name: Detect service exist
       stat: path=/etc/init/kube-apiserver.conf
-      register: st
+      register: st1
+    - name: Detect service exist
+      stat: path=/etc/systemd/system/kube-apiserver.service
+      register: st2
     - name: Disable master services
       service: name={{ item }} enabled=no
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-apiserver
@@ -56,7 +62,7 @@
         - kube-controller-manager
     - name: Stop master services
       service: name={{ item }} state=stopped
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
       with_items:
         - kubelet
         - kube-apiserver
@@ -70,13 +76,16 @@
   tasks:
     - name: Detect service exist
       stat: path=/etc/init/etcd.conf
-      register: st
+      register: st1
+    - name: Detect service exist
+      stat: path=/etc/systemd/system/etcd.service
+      register: st2
     - name: Disable services
       service: name=etcd enabled=no
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
     - name: Stop services
       service: name=etcd state=stopped
-      when: st.stat.exists
+      when: st1.stat.exists or st2.stat.exists
 
 
 - hosts: all
@@ -103,11 +112,18 @@
     - name: Delete all files
       file: path={{ item }} state=absent
       with_items:
+        - /etc/init/etcd.conf
         - /etc/init/kubelet.conf
         - /etc/init/kube-proxy.conf
         - /etc/init/kube-scheduler.conf
         - /etc/init/kube-controller-manager.conf
         - /etc/init/kube-apiserver.conf
+        - /etc/systemd/system/etcd.service
+        - /etc/systemd/system/kubelet.service
+        - /etc/systemd/system/kube-proxy.service
+        - /etc/systemd/system/kube-scheduler.service
+        - /etc/systemd/system/kube-controller-manager.service
+        - /etc/systemd/system/kube-apiserver.service
         - /etc/kubernetes
         - /etc/etcd
         - /etc/cni
@@ -131,3 +147,5 @@
         - /var/lib/kubelet
         - /var/log/etcd
         - /var/lib/etcd
+        - /var/run/kubernetes
+        - /var/run/calico

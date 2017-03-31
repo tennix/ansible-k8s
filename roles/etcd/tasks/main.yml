@@ -5,6 +5,9 @@
 - name: Ensure etcd conf directory exist
   file: path=/etc/etcd state=directory mode=0755
 
+- name: Create etcd user
+  user: name=etcd state=present shell=/sbin/nologin home=/var/lib/etcd
+
 - include: net-install.yml
   when: net_install
 
